@@ -1,6 +1,6 @@
-# Docker (B)ELK stack
+# Docker ELK stack
 
-![Big picture](https://github.com/aliaskov/docker-elk/blob/master/stack.jpg)
+![Big picture](https://github.com/funkedigital/elk/blob/master/stack.jpg)
 
 Run the latest version of the ELK (Elasticsearch, Logstash, Kibana) stack with Docker and Docker Compose. Additionally, filebeat and metricbeat (log and system metrics shippers) included.
 
@@ -188,7 +188,7 @@ sudo systemctl start rexray
 ```
 or via docker container rexray/ebs:latest
 
-**Dont forget about AWS credentials and IAM role to give rexray permissions to create and modify EBS Volumes**
+**Dont forget about AWS credentials and IAM role to give rexray permissions to create and modify Volumes.**
 
 ## Extensibility
 

@@ -21,7 +21,7 @@ filebeat.prospectors:
 - type: log
 
   # Change to true to enable this prospector configuration.
-  enabled: false
+  enabled: true
 
   # Paths that should be crawled and fetched. Glob based paths.
   paths:
@@ -71,12 +71,14 @@ filebeat.prospectors:
 
 #============================= Filebeat modules ===============================
 
-filebeat.config.modules:
+filebeat.modules:
+- module: system
+#filebeat.config.modules:
   # Glob pattern for configuration loading
-  path: ${path.config}/modules.d/*.yml
+  #path: ${path.config}/modules.d/*.yml
 
   # Set to true to enable config reloading
-  reload.enabled: false
+  #reload.enabled: false
 
   # Period on which files under path should be checked for changes
   #reload.period: 10s
@@ -108,13 +110,13 @@ setup.template.settings:
 # These settings control loading the sample dashboards to the Kibana index. Loading
 # the dashboards is disabled by default and can be enabled either by setting the
 # options here, or by using the `-setup` CLI flag or the `setup` command.
-#setup.dashboards.enabled: false
+setup.dashboards.enabled: true
 
 # The URL from where to download the dashboards archive. By default this URL
 # has a value which is computed based on the Beat name and version. For released
 # versions, this URL points to the dashboard archive on the artifacts.elastic.co
 # website.
-#setup.dashboards.url:
+#setup.dashboards.url: https://artifacts.elastic.co/downloads/beats/beats-dashboards/beats-dashboards-6.2.2.zip
 
 #============================== Kibana =====================================
 
