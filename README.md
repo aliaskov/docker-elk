@@ -9,11 +9,11 @@ and the visualization power of Kibana, logs delivered by filebeat and prepared/t
 
 Based on the official Docker images:
 
-* [elasticsearch](https://github.com/elastic/elasticsearch-docker)
-* [logstash](https://github.com/elastic/logstash-docker)
-* [kibana](https://github.com/elastic/kibana-docker)
-* [filebeat](https://github.com/elastic/beats-docker)
-* [metricbeat](https://github.com/elastic/beats-docker)
+* [elasticsearch](https://github.com/elastic/elasticsearch-docker) 6.2.2-oss
+* [logstash](https://github.com/elastic/logstash-docker) 6.2.2-oss
+* [kibana](https://github.com/elastic/kibana-docker) 6.2.2-oss
+* [filebeat](https://github.com/elastic/beats-docker) 6.2.2
+* [metricbeat](https://github.com/elastic/beats-docker) 6.2.2
 
 
 
@@ -25,6 +25,7 @@ Based on the official Docker images:
 3. [Configuration](#configuration)
    * [How can I tune the Kibana configuration?](#how-can-i-tune-the-kibana-configuration)
    * [How can I tune the Logstash configuration?](#how-can-i-tune-the-logstash-configuration)
+   * [How can I tune the Beats configuration?](#how-can-i-tune-the-beats-configuration)
    * [How can I tune the Elasticsearch configuration?](#how-can-i-tune-the-elasticsearch-configuration)
    * [How can I scale out the Elasticsearch cluster?](#how-can-i-scale-up-the-elasticsearch-cluster)
 4. [Storage](#storage)
@@ -127,6 +128,17 @@ It is also possible to map the entire `config` directory instead of a single fil
 Logstash will be expecting a
 [`log4j2.properties`](https://github.com/elastic/logstash-docker/tree/master/build/logstash/config) file for its own
 logging.
+### How can I tune the Beats configuration?
+
+By default Filebeat container uses /var/log to grab logs.
+Logs paths listed in prospectors.d/ yml files and each server has it's own dedicated prospectors config file.
+
+Metricbeat sends system metrics ( cpu, load, Per CPU core stats, IO stats etc) to Elasticsearch every 30 seconds.
+
+Both Filebeat and Metricbeat configuration files are copied during docker container creation, so rebuild is needed.
+
+
+**NOTE:** use --no-cache flag to rebuild container after chmod and chown!
 
 ### How can I tune the Elasticsearch configuration?
 

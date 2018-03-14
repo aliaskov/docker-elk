@@ -4,4 +4,6 @@ COPY config/filebeat.yml /usr/share/filebeat/filebeat.yml
 USER root
 RUN chown filebeat /usr/share/filebeat/filebeat.yml
 RUN chmod go-w /usr/share/filebeat/filebeat.yml
+RUN chmod -R go-w /usr/share/filebeat/prospectors.d/
+RUN chmod -R go-w /usr/share/filebeat/modules.d/
 USER filebeat

@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
 
@@ -12,8 +12,14 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+      ES_JAVA_OPTS: "-Xmx1g -Xms1g -XX:MaxMetaspaceSize=256m"
       ELASTIC_PASSWORD: changeme
+    healthcheck:
+      test: ["CMD", "curl","-s" ,"-f", "-u", "elastic:changeme", "http://elasticsearch:9200/_cat/health?h=status"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: always
     networks:
       - elk
 
@@ -26,11 +32,13 @@ services:
     ports:
       - "5000:5000"
     environment:
-      LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+      LS_JAVA_OPTS: "-Xmx512m -Xms512m -XX:MaxMetaspaceSize=256m"
+    restart: always
     networks:
       - elk
     depends_on:
-      - elasticsearch
+      elasticsearch:
+          condition: service_healthy
 
   kibana:
     build:
@@ -41,22 +49,27 @@ services:
       - "5601:5601"
     networks:
       - elk
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://kibana:5601/status"]
+      retries: 6
     depends_on:
-      - elasticsearch
+      elasticsearch:
+          condition: service_healthy
 
   filebeat:
     build:
       context: filebeat/
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/config/filebeat.yml:ro
-      - /mounts/edu-be/log:/etc/logs/edu-be/escenic
-      - /mounts/edu-be/tomcat/logs:/etc/logs/edu-be/tomcat
-      - /mounts/edu-fe/log:/etc/logs/edu-fe/escenic
-      - /mounts/edu-fe/tomcat/logs:/etc/logs/edu-fe/tomcat
+      - ./filebeat/prospectors.d:/usr/share/filebeat/prospectors.d
+      - /var/log:/etc/logs:ro
     networks:
       - elk
+    restart: always
     depends_on:
-      - logstash
+      kibana:
+          condition: service_healthy
 
   metricbeat:
     build:
@@ -68,15 +81,17 @@ services:
       - /:/hostfs:ro
     networks:
       - elk
+    restart: always
     depends_on:
-      - elasticsearch
+      elasticsearch:
+          condition: service_healthy
 
 
 volumes:
   elasticsearch_data:
     driver: rexray/ebs:latest
     driver_opts:
-      size: 200
+      size: 500
       volumeType : gp2
 
 networks:

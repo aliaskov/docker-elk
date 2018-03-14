@@ -1,0 +1,11 @@
+
+
+- type: log
+  paths:
+    - /etc/logs/MOUNTPOINT/apache2/log/*.log
+  scan_frequency: 5s
+
+#- type: log
+#  paths:
+#    - /etc/logs/MOUNTPOINT/tomcat/logs/*.txt
+#  scan_frequency: 5s

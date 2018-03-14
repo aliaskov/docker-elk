@@ -9,30 +9,57 @@
 
 # For mor   e available modules and options, please see the filebeat.reference.yml sample
 # configuration file.
+#========================= Filebeat global options ============================
+
+# Name of the registry file. If a relative path is used, it is considered relative to the
+# data path.
+#filebeat.registry_file: ${path.data}/registry
+
+# These config files must have the full filebeat config part inside, but only
+# the prospector part is processed. All global options like spool_size are ignored.
+# The config_dir MUST point to a different directory then where the main filebeat config file is in.
+#filebeat.config_dir:
+
+# How long filebeat waits on shutdown for the publisher to finish.
+# Default is 0, not waiting.
+#filebeat.shutdown_timeout: 0
+
+# Enable filebeat config reloading
+filebeat.config:
+  prospectors:
+    enabled: true
+    path: prospectors.d/*.yml
+    reload.enabled: true
+    reload.period: 10s
+  #modules:
+    #enabled: false
+    #path: modules.d/*.yml
+    #reload.enabled: true
+    #reload.period: 10s
 
 #=========================== Filebeat prospectors =============================
 
-filebeat.prospectors:
+#filebeat.prospectors:
 
 # Each - is a prospector. Most options can be set at the prospector level, so
 # you can use different prospectors for various configurations.
 # Below are the prospector specific configurations.
 
-- type: log
+#- type: log
 
   # Change to true to enable this prospector configuration.
-  enabled: true
+  #enabled: true
 
   # Paths that should be crawled and fetched. Glob based paths.
-  paths:
+  #paths:
      #- /mounts/edu-fe/log/*.log
      #- /mounts/edu-fe/tomcat/logs/*.txt
      #- /mounts/edu-be/tomcat/logs/*.txt
      #- /mounts/edu-fe/log/escenic/*.log
-     - /etc/logs/edu-be/escenic/*.log
-     - /etc/logs/edu-be/tomcat/*.txt
-     - /etc/logs/edu-fe/escenic/*.log
-     - /etc/logs/edu-fe/tomcat/*.txt
+     #- /etc/logs/edu-be/escenic/*.log
+     #- /etc/logs/edu-be/tomcat/*.txt
+     #- /etc/logs/edu-fe/escenic/*.log
+     #- /etc/logs/edu-fe/tomcat/*.txt
     #- c:\programdata\elasticsearch\logs\*
   # Exclude lines. A list of regular expressions to match. It drops the lines that are
   # matching any regular expression from the list.
@@ -68,20 +95,69 @@ filebeat.prospectors:
   # Note: After is the equivalent to previous and before is the equivalent to to next in Logstash
   #multiline.match: after
 
-
+#filebeat.autodiscover:
+#  providers:
+#   - type: docker
+#     templates:
+#       - condition:
+#           contains:
+#             docker.container.name: "apache2"
+#         config:
+#           - module: apache
+#             access:
+#               prospector:
+#                 type: docker
+#                 container.ids:
+#                   - "${data.docker.container.id}"
 #============================= Filebeat modules ===============================
 
-filebeat.modules:
-- module: system
-#filebeat.config.modules:
-  # Glob pattern for configuration loading
-  #path: ${path.config}/modules.d/*.yml
+# filebeat.modules:
+# - module: apache2
+#     # Access logs
+#   access:
+#     enabled: true
+#       # Set custom paths for the log files. If left empty,
+#       # Filebeat will choose the paths depending on your OS.
+#     var.paths: ["/etc/logs/*/log/apache2/access*.log"]
+#       # Prospector configuration (advanced). Any prospector configuration option
+#       # can be added under this section.
+#       #prospector:
+#
+#     # Error logs
+#   error:
+#     enabled: true
+#       # Set custom paths for the log files. If left empty,
+#       # Filebeat will choose the paths depending on your OS.
+#     var.paths: ["/etc/logs/*/log/apache2/error*.log"]
+#       # Prospector configuration (advanced). Any prospector configuration option
+#       # can be added under this section.
+#       #prospector:
 
-  # Set to true to enable config reloading
-  #reload.enabled: false
+#-------------------------------- MySQL Module -------------------------------
+#- module: mysql
+  # Error logs
+  #error:
+    #enabled: true
 
-  # Period on which files under path should be checked for changes
-  #reload.period: 10s
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+    # Prospector configuration (advanced). Any prospector configuration option
+    # can be added under this section.
+    #prospector:
+
+  # Slow logs
+  #slowlog:
+    #enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+    # Prospector configuration (advanced). Any prospector configuration option
+    # can be added under this section.
+    #prospector:
 
 #==================== Elasticsearch template setting ==========================
 
@@ -176,7 +252,7 @@ output.elasticsearch:
 
 # Sets log level. The default log level is info.
 # Available log levels are: error, warning, info, debug
-#logging.level: debug
+logging.level: warning
 
 # At debug level, you can selectively enable logging only for some components.
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",
