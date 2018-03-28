@@ -12,13 +12,18 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx1g -Xms1g -XX:MaxMetaspaceSize=256m"
+      ES_JAVA_OPTS: "-Xmx6g -Xms6g -XX:MaxMetaspaceSize=256m"
       ELASTIC_PASSWORD: changeme
     healthcheck:
-      test: ["CMD", "curl","-s" ,"-f", "-u", "elastic:changeme", "http://elasticsearch:9200/_cat/health?h=status"]
+      test: ["CMD", "curl","-XGET", "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=650s&pretty"]
       interval: 30s
-      timeout: 30s
-      retries: 3
+      timeout: 5m
+      retries: 30
+    ulimits:
+      nproc: 98304
+      nofile:
+        soft: 98304
+        hard: 98304
     restart: always
     networks:
       - elk
@@ -32,7 +37,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      LS_JAVA_OPTS: "-Xmx512m -Xms512m -XX:MaxMetaspaceSize=256m"
+      LS_JAVA_OPTS: "-Xmx2048m -Xms2048m -XX:MaxMetaspaceSize=256m"
     restart: always
     networks:
       - elk
@@ -63,7 +68,9 @@ services:
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/config/filebeat.yml:ro
       - ./filebeat/prospectors.d:/usr/share/filebeat/prospectors.d
-      - /var/log:/etc/logs:ro
+      - ./filebeat/temp:/usr/share/filebeat/temp
+      - ./filebeat/modules.d:/modules.d
+      - /mounts:/etc/logs:ro
     networks:
       - elk
     restart: always
@@ -79,9 +86,27 @@ services:
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - elk
     restart: always
+    depends_on:
+      elasticsearch:
+          condition: service_healthy
+  curator:
+    build:
+     context: curator/
+    environment:
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      S3_BUCKET_NAME: funke-old-elasticsearch-indices
+      S3_BUCKET_REGION: eu-central-1
+      OPTIMIZE_EVERY: 1
+      COPY_TO_S3_AFTER: 3
+      MAX_INDEX_AGE: 8
+    restart: always
+    networks:
+      - elk
     depends_on:
       elasticsearch:
           condition: service_healthy
@@ -91,7 +116,7 @@ volumes:
   elasticsearch_data:
     driver: rexray/ebs:latest
     driver_opts:
-      size: 500
+      size: 700
       volumeType : gp2
 
 networks:

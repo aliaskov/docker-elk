@@ -1,0 +1,19 @@
+- type: log
+  ignore_older: 1h
+  paths:
+    - /etc/logs/*/log/apache2/access*.log
+  scan_frequency: 5
+  fields_under_root: true
+  fields:
+    type: apache2-access
+
+
+- type: log
+  ignore_older: 1h
+  paths:
+    - /etc/logs/*/log/apache2/error*.log
+  scan_frequency: 5
+  fields_under_root: true
+  fields:
+    type: apache2-error
+

@@ -94,21 +94,10 @@ metricbeat.modules:
   # Password of hosts. Empty by default
   #password: test123
 
-#-------------------------------- ceph Module --------------------------------
-#- module: ceph
-#  metricsets: ["cluster_disk", "cluster_health", "monitor_health", "pool_disk"]
-#  enabled: true
-#  period: 10s
-#  hosts: ["localhost:5000"]
-
-#------------------------------ Couchbase Module -----------------------------
-#- module: couchbase
-  #metricsets: ["cluster", "node", "bucket"]
-  #enabled: true
-  #period: 10s
-  #hosts: ["localhost:8091"]
 
 #------------------------------- Docker Module -------------------------------
+# to enable module, execute on HOST setfacl -m u:1000:rw /var/run/docker.sock
+# by default docker.sock doesn't have 1000 permissions, so after container mount it throws error
 - module: docker
   metricsets: ["container", "cpu", "diskio", "healthcheck", "info", "memory", "network"]
   hosts: ["unix:///var/run/docker.sock"]
@@ -120,72 +109,6 @@ metricbeat.modules:
     #certificate_authority: "/etc/pki/root/ca.pem"
     #certificate:           "/etc/pki/client/cert.pem"
     #key:                   "/etc/pki/client/cert.key"
-
-#------------------------------- HAProxy Module ------------------------------
-#- module: haproxy
-  #metricsets: ["info", "stat"]
-  #enabled: true
-  #period: 10s
-  #hosts: ["tcp://127.0.0.1:14567"]
-
-#------------------------------- Jolokia Module ------------------------------
-#- module: jolokia
-#  metricsets: ["jmx"]
-#  enabled: true
-#  period: 10s
-#  hosts: ["localhost"]
-#  namespace: "metrics"
-#  path: "/jolokia/?ignoreErrors=true&canonicalNaming=false"
-#  jmx.mapping:
-#  jmx.application:
-#  jmx.instance:
-
-#-------------------------------- kafka Module -------------------------------
-#- module: kafka
-  #metricsets: ["partition"]
-  #enabled: true
-  #period: 10s
-  #hosts: ["localhost:9092"]
-
-  #client_id: metricbeat
-  #retries: 3
-  #backoff: 250ms
-
-  # List of Topics to query metadata for. If empty, all topics will be queried.
-  #topics: []
-
-  # Optional SSL. By default is off.
-  # List of root certificates for HTTPS server verifications
-  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
-
-  # Certificate for SSL client authentication
-  #ssl.certificate: "/etc/pki/client/cert.pem"
-
-  # Client Certificate Key
-  #ssl.key: "/etc/pki/client/cert.key"
-
-  # SASL authentication
-  #username: ""
-  #password: ""
-
-#------------------------------- MongoDB Module ------------------------------
-#- module: mongodb
-  #metricsets: ["dbstats", "status"]
-  #enabled: true
-  #period: 10s
-
-  # The hosts must be passed as MongoDB URLs in the format:
-  # [mongodb://][user:pass@]host[:port].
-  # The username and password can also be set using the respective configuration
-  # options. The credentials in the URL take precedence over the username and
-  # password configuration options.
-  #hosts: ["localhost:27017"]
-
-  # Username to use when connecting to MongoDB. Empty by default.
-  #username: user
-
-  # Password to use when connecting to MongoDB. Empty by default.
-  #password: pass
 
 #-------------------------------- MySQL Module -------------------------------
 #- module: mysql

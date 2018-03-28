@@ -13,7 +13,7 @@
 
 # Name of the registry file. If a relative path is used, it is considered relative to the
 # data path.
-#filebeat.registry_file: ${path.data}/registry
+filebeat.registry_file: ${path.home}/temp/new_registry
 
 # These config files must have the full filebeat config part inside, but only
 # the prospector part is processed. All global options like spool_size are ignored.
@@ -111,27 +111,27 @@ filebeat.config:
 #                   - "${data.docker.container.id}"
 #============================= Filebeat modules ===============================
 
-# filebeat.modules:
-# - module: apache2
-#     # Access logs
-#   access:
-#     enabled: true
-#       # Set custom paths for the log files. If left empty,
-#       # Filebeat will choose the paths depending on your OS.
-#     var.paths: ["/etc/logs/*/log/apache2/access*.log"]
-#       # Prospector configuration (advanced). Any prospector configuration option
-#       # can be added under this section.
-#       #prospector:
-#
-#     # Error logs
-#   error:
-#     enabled: true
-#       # Set custom paths for the log files. If left empty,
-#       # Filebeat will choose the paths depending on your OS.
-#     var.paths: ["/etc/logs/*/log/apache2/error*.log"]
-#       # Prospector configuration (advanced). Any prospector configuration option
-#       # can be added under this section.
-#       #prospector:
+#filebeat.modules:
+#- module: apache2
+    # Access logs
+#  access:
+#    enabled: true
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+#    var.paths: ["/etc/logs/*/log/apache2/access*.log"]
+      # Prospector configuration (advanced). Any prospector configuration option
+      # can be added under this section.
+      #prospector:
+
+    # Error logs
+#  error:
+#    enabled: true
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+#    var.paths: ["/etc/logs/*/log/apache2/error*.log"]
+      # Prospector configuration (advanced). Any prospector configuration option
+      # can be added under this section.
+      #prospector:
 
 #-------------------------------- MySQL Module -------------------------------
 #- module: mysql
@@ -224,19 +224,19 @@ setup.kibana:
 # Configure what output to use when sending the data collected by the beat.
 
 #-------------------------- Elasticsearch output ------------------------------
-output.elasticsearch:
-  # Array of hosts to connect to.
-  hosts: ["elasticsearch:9200"]
-
-  # Optional protocol and basic auth credentials.
-  #protocol: "https"
-  username: "elastic"
-  password: "changeme"
+#output.elasticsearch:
+#  # Array of hosts to connect to.
+#  hosts: ["elasticsearch:9200"]
+#
+#  # Optional protocol and basic auth credentials.
+#  #protocol: "https"
+#  username: "elastic"
+#  password: "changeme"
 
 #----------------------------- Logstash output --------------------------------
-#output.logstash:
+output.logstash:
   # The Logstash hosts
-  #hosts: ["logstash:5000"]
+  hosts: ["logstash:5000"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications

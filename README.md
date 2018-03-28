@@ -14,6 +14,8 @@ Based on the official Docker images:
 * [kibana](https://github.com/elastic/kibana-docker) 6.2.2-oss
 * [filebeat](https://github.com/elastic/beats-docker) 6.2.2
 * [metricbeat](https://github.com/elastic/beats-docker) 6.2.2
++
+* [curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/current/about.html)  based on alpine+pip+curator
 
 
 
@@ -37,6 +39,11 @@ Based on the official Docker images:
 6. [JVM tuning](#jvm-tuning)
    * [How can I specify the amount of memory used by a service?](#how-can-i-specify-the-amount-of-memory-used-by-a-service)
    * [How can I enable a remote JMX connection to a service?](#how-can-i-enable-a-remote-jmx-connection-to-a-service)
+7. [Elasticsearch cleanup and optimization with Curator](#curator)
+  * [What is Curator?](#what-is-curator)
+  * [How long you want to keep the indices?](#how-long-you-want-to-keep-the-indices)
+  * [Copying indices to AWS S3](#copying-indices-to-aws-s3)
+
 
 
 ### About ELK
@@ -51,19 +58,14 @@ Based on the official Docker images:
 
 **Note**: In case you switched branch or updated a base image - you may need to run `docker-compose build` first
 
-Start the ELK stack using `docker-compose`:
+Start the ELK stack using `docker-compose` in background (detached mode):
 
-```console
-$ docker-compose up
-```
-
-You can also choose to run it in background (detached mode):
 
 ```console
 $ docker-compose up -d
 ```
 
-Give Kibana a few seconds to initialize, then access the Kibana web UI by hitting
+Give  Elasticsearch and Kibana a few seconds to initialize, then access the Kibana web UI by hitting 5601 port
 [http://localhost:5601](http://localhost:5601) with a web browser.
 
 By default, the stack exposes the following ports:
@@ -72,14 +74,8 @@ By default, the stack exposes the following ports:
 * 9300: Elasticsearch TCP transport
 * 5601: Kibana
 
-Now that the stack is running, you will want to inject some log entries.
- Commented section in logstash.config file (input {	tcp {		port => 5000 	}) Logstash configuration allows you
-to send content via TCP:
-
-```console
-$ nc localhost 5000 < /path/to/logfile.log
-```
-Otherwise logstash waits filebeat to send data.
+Now that the stack is running, logstash waits filebeat to send data.
+Look at filebeat logs, wait for harvester to find logs.
 
 ## Initial setup
 
@@ -128,17 +124,27 @@ It is also possible to map the entire `config` directory instead of a single fil
 Logstash will be expecting a
 [`log4j2.properties`](https://github.com/elastic/logstash-docker/tree/master/build/logstash/config) file for its own
 logging.
-### How can I tune the Beats configuration?
+### How can I tune the Beats (filebeat and metricbeat) configuration?
 
-By default Filebeat container uses /var/log to grab logs.
-Logs paths listed in prospectors.d/ yml files and each server has it's own dedicated prospectors config file.
+Filebeat takes logs from sshfs mounts and push them to Elasticsearch.
+Simple bash script, extensions/sshfs-mount.sh mounts all servers' /opt/escenic directory  on /mounts. After this stack mounts all /mounts on filebeats container.
+Filebeat container uses /mounts to grab logs.
+Logs paths listed in prospectors.d/ yml files per log type.
 
-Metricbeat sends system metrics ( cpu, load, Per CPU core stats, IO stats etc) to Elasticsearch every 30 seconds.
+Metricbeat sends system metrics ( cpu, load, Per CPU core stats, IO stats etc) to Elasticsearch every 10 seconds. Also, to get docker stats from /var/run/docker.sock on host need to modify permissions and mount it inside metricbeat container.
+
+```console
+setfacl -m u:1000:rw /var/run/docker.sock
+```
+From docker-compose:
+```yml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
 
 Both Filebeat and Metricbeat configuration files are copied during docker container creation, so rebuild is needed.
 
-
-**NOTE:** use --no-cache flag to rebuild container after chmod and chown!
+**NOTE:**  --no-cache flag is needed during  rebuilding of the container after chmod and chown!
 
 ### How can I tune the Elasticsearch configuration?
 
@@ -263,4 +269,52 @@ logstash:
 
   environment:
     LS_JAVA_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.rmi.port=18080 -Djava.rmi.server.hostname=DOCKER_HOST_IP -Dcom.sun.management.jmxremote.local.only=false"
+```
+
+
+## Curator
+
+### What is Curator?
+Elasticsearch Curator helps to curate, or manage (optimize, delete, copy, restore), Elasticsearch indices and snapshots.
+
+How can I check used space in details?
+
+```console
+docker exec  elk_curator_1 curator_cli --host elasticsearch --port 9200  show_indices --verbose --header
+
+```
+### How long you want to keep the indices?
+The data stored can be deleted for certain number of days. You can specify MAX_INDEX_AGE for how long you want to keep the data indices.  
+
+### Copying indices to AWS S3
+**Dont forget to create repo in Elasticsearch!**
+
+```console
+
+curl -XPUT 'localhost:9200/_snapshot/funke-old-elasticsearch-indices?pretty' -H 'Content-Type: application/json' -d'
+{
+  "type": "s3",
+  "settings": {
+    "bucket": "funke-old-elasticsearch-indices",
+    "region": "eu-central-1"
+  }
+}
+'
+```
+
+ S3_BUCKET_NAME (has the same name as ES repo) and S3_BUCKET_REGION specifies AWS S3 bucket settings.
+
+OPTIMIZE_EVERY and COPY_TO_S3_AFTER specifies number of days before action.
+
+
+```yml
+curator:
+  environment:
+    ELASTICSEARCH_HOST: elasticsearch
+    ELASTICSEARCH_PORT: 9200
+    S3_BUCKET_NAME: funke-old-elasticsearch-indices
+    S3_BUCKET_REGION: eu-central-1
+    OPTIMIZE_EVERY: 1
+    COPY_TO_S3_AFTER: 20
+    MAX_INDEX_AGE: 30
 ```

@@ -1,0 +1,9 @@
+- type: log
+  ignore_older: 1h
+  paths:
+    - /etc/logs/*/tomcat/logs/*.txt
+  scan_frequency: 5
+  fields_under_root: true
+  fields:
+    type: tomcat-access
+
