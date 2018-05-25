@@ -14,7 +14,7 @@ The data stored can be deleted for certain number of days. You can specify MAX_I
 
 ```console
 
-curl -XPUT 'localhost:9200/_snapshot/funke-old-elasticsearch-indices?pretty' -H 'Content-Type: application/json' -d'
+curl -XPUT 'localhost:9200/_snapshot/old-elasticsearch-indices?pretty' -H 'Content-Type: application/json' -d'
 {
   "type": "s3",
   "settings": {
@@ -35,7 +35,7 @@ curator:
   environment:
     ELASTICSEARCH_HOST: elasticsearch
     ELASTICSEARCH_PORT: 9200
-    S3_BUCKET_NAME: funke-old-elasticsearch-indices
+    S3_BUCKET_NAME: old-elasticsearch-indices
     S3_BUCKET_REGION: eu-central-1
     OPTIMIZE_EVERY: 1
     COPY_TO_S3_AFTER: 20

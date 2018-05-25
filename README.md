@@ -11,10 +11,10 @@ Based on the official Docker images:
 
 * [elasticsearch](https://github.com/elastic/elasticsearch-docker) 6.2.2-oss
 * [logstash](https://github.com/elastic/logstash-docker) 6.2.2-oss
-* [kibana](https://github.com/elastic/kibana-docker) 6.2.2-oss
+* [kibana](https://github.com/elastic/kibana-docker) 6.2.4-oss
 * [filebeat](https://github.com/elastic/beats-docker) 6.2.2
 * [metricbeat](https://github.com/elastic/beats-docker) 6.2.2
-+
+* [elastalert](https://elastalert.readthedocs.io/en/latest/) 
 * [curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/current/about.html)  based on alpine+pip+curator
 
 

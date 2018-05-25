@@ -12,7 +12,7 @@ fi
 # {
 #   "type": "s3",
 #   "settings": {
-#     "bucket": "funke-old-elasticsearch-indices",
+#     "bucket": "old-elasticsearch-indices",
 #     "region": "eu-central-1"
 #   }
 # }

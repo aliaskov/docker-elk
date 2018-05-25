@@ -8,12 +8,14 @@ services:
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
       - elasticsearch_data:/usr/share/elasticsearch/data
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx6g -Xms6g -XX:MaxMetaspaceSize=256m"
       ELASTIC_PASSWORD: changeme
+      TZ: "Europe/Berlin"
     healthcheck:
       test: ["CMD", "curl","-XGET", "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=650s&pretty"]
       interval: 30s
@@ -34,10 +36,12 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - "5000:5000"
     environment:
       LS_JAVA_OPTS: "-Xmx2048m -Xms2048m -XX:MaxMetaspaceSize=256m"
+      TZ: "Europe/Berlin"
     restart: always
     networks:
       - elk
@@ -50,8 +54,12 @@ services:
       context: kibana/
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - ./kibana/config/logtrail.json:/usr/share/kibana/plugins/logtrail/logtrail.json
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - "5601:5601"
+    environment:
+      TZ: "Europe/Berlin"
     networks:
       - elk
     restart: always
@@ -71,12 +79,33 @@ services:
       - ./filebeat/temp:/usr/share/filebeat/temp
       - ./filebeat/modules.d:/modules.d
       - /mounts:/etc/logs:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: "Europe/Berlin"
     networks:
       - elk
     restart: always
     depends_on:
       kibana:
           condition: service_healthy
+
+  elastalert:
+    build:
+      context: elastalert/
+    volumes:
+      - ./elastalert/config/config.yaml:/home/elastalert/config.yaml
+      - ./elastalert/rules:/home/elastalert/rules
+      - ./elastalert/rule_templates:/home/elastalert/rule_templates
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3030:3030"
+    networks:
+      - elk
+    restart: always
+    depends_on:
+      kibana:
+          condition: service_healthy
+
 
   metricbeat:
     build:
@@ -87,6 +116,7 @@ services:
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /:/hostfs:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - elk
     restart: always
@@ -99,11 +129,12 @@ services:
     environment:
       ELASTICSEARCH_HOST: elasticsearch
       ELASTICSEARCH_PORT: 9200
-      S3_BUCKET_NAME: funke-old-elasticsearch-indices
+      S3_BUCKET_NAME: old-elasticsearch-indices
       S3_BUCKET_REGION: eu-central-1
       OPTIMIZE_EVERY: 1
       COPY_TO_S3_AFTER: 3
-      MAX_INDEX_AGE: 8
+      MAX_INDEX_AGE: 10
+      TZ: "Europe/Berlin"
     restart: always
     networks:
       - elk
@@ -113,11 +144,8 @@ services:
 
 
 volumes:
-  elasticsearch_data:
-    driver: rexray/ebs:latest
-    driver_opts:
-      size: 700
-      volumeType : gp2
+  elasticsearch_data: {}
+
 
 networks:
 

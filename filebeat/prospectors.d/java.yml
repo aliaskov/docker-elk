@@ -1,0 +1,13 @@
+- type: log
+  ignore_older: 1h
+  paths:
+    - /etc/logs/*/log/java*.log
+  scan_frequency: 5
+  fields_under_root: true
+  fields:
+    type: java-log
+  ## 2018-03-15 16:06:00,023  INFO
+  ## 2018-03-15 01:25:55,764
+  multiline.pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}[:][0-9]{2}[:][0-9]{2}'
+  multiline.negate: true
+  multiline.match: after

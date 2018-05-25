@@ -8,14 +8,3 @@
   paths:
     - /etc/logs/*.txt
   scan_frequency: 5s
-
-
-#- type: log
-#  paths:
-#    - /etc/logs/prod-fe1/log/apache2/*.log
-#  scan_frequency: 5s
-
-#- type: log
-#  paths:
-#    - /etc/logs/prod-fe1/tomcat/logs/*.txt
-#  scan_frequency: 5s
