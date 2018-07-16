@@ -1,0 +1,38 @@
+debug = true
+checkNewVersion = true
+logLevel = "DEBUG"
+defaultEntryPoints = ["http","https"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+  [entryPoints.https.tls]
+
+[retry]
+
+[web]
+address = ":8080"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "kibana.aws.funkedigital.de"
+watch = true
+exposedbydefault = true
+
+[acme]
+email = "technical-accounts@funkedigital.de"
+storage = "acme.json"
+dnsProvider = "route53"
+entryPoint = "https"
+  [acme.dnsChallenge]
+  provider = "route53" # DNS Provider name (cloudflare, OVH, gandi...)
+  delayBeforeCheck = 0
+
+# OnHostRule = true
+#[[acme.domains]]
+#main = "kibana.aws.funkedigital.de"
+

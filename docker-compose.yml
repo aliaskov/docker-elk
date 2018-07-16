@@ -69,6 +69,27 @@ services:
     depends_on:
       elasticsearch:
           condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:kibana.aws.XXXXXXX.XXXXX"
+      - "traefik.port=5601"
+
+  traefik:
+    image: traefik:latest
+    ports:
+      - 80:80
+      - 443:443
+      - 5001:443
+      - 8080:8080
+      - 10080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.toml:/traefik.toml
+      - ./traefik/acme.json:/acme.json
+    restart: always
+    networks:
+      - elk
+
 
   filebeat:
     build:
