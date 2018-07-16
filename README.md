@@ -6,7 +6,7 @@ Run the latest version of the ELK (Elasticsearch, Logstash, Kibana) stack with D
 
 It will give you the ability to analyze any data set by using the searching/aggregation capabilities of Elasticsearch
 and the visualization power of Kibana, logs delivered by filebeat and prepared/transformed by logstash.
-
+Traefik is used as a HTTP reverse proxy. It uses AWS Route53 and free let's encrypt ssl certs to give true https.
 Based on the official Docker images:
 
 * [elasticsearch](https://github.com/elastic/elasticsearch-docker) 6.2.2-oss
@@ -16,7 +16,7 @@ Based on the official Docker images:
 * [metricbeat](https://github.com/elastic/beats-docker) 6.2.2
 * [elastalert](https://elastalert.readthedocs.io/en/latest/) 
 * [curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/current/about.html)  based on alpine+pip+curator
-
+* [traefik](https://github.com/containous/traefik) latest 
 
 
 ## Contents
@@ -43,6 +43,7 @@ Based on the official Docker images:
   * [What is Curator?](#what-is-curator)
   * [How long you want to keep the indices?](#how-long-you-want-to-keep-the-indices)
   * [Copying indices to AWS S3](#copying-indices-to-aws-s3)
+8. [Traefik](#traefik)
 
 
 
@@ -318,3 +319,9 @@ curator:
     COPY_TO_S3_AFTER: 20
     MAX_INDEX_AGE: 30
 ```
+
+### Traefik
+
+Træfik is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.
+**Don't forget to change the domain name in docker-compose file, after you create Route53 DNS entry!**
+[here is the explanation and example](https://docs.traefik.io/user-guide/docker-and-lets-encrypt/)
